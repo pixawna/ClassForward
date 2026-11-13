@@ -24,3 +24,7 @@ yarn-error.log*
 /scraper/.venv/
 __pycache__/
 *.pyc
+
+# Local speech runtime and downloaded voice weights
+/voice/.venv/
+/voice/models/

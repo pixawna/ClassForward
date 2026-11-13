@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { formatDuration } from "@/lib/lesson-limits";
 import { LEVEL_LABEL, listLessons } from "@/lib/lessons";
 import { requireTeacher } from "@/lib/session";
 import { redButton } from "../components/ui";
@@ -70,7 +71,7 @@ export default async function ClassroomPage() {
                   </h3>
                   <p className="mt-3 flex flex-wrap gap-2 text-sm font-medium text-ink">
                     <span className="rounded-full bg-[#F6D77A]/70 px-3 py-1">{LEVEL_LABEL[lesson.level]}</span>
-                    <span className="rounded-full bg-[#9CCDEB]/50 px-3 py-1">{lesson.durationMinutes} min</span>
+                    <span className="rounded-full bg-[#9CCDEB]/50 px-3 py-1">{formatDuration(lesson.durationSeconds, "short")}</span>
                   </p>
                   <p className="mt-4 text-ink-soft">
                     {lesson.objectives.length} {lesson.objectives.length === 1 ? "objective" : "objectives"},{" "}

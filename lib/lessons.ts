@@ -1,5 +1,5 @@
 import "server-only";
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
 import { db } from "./db";
 
 export type Level = "high_school" | "college";
@@ -14,7 +14,8 @@ export type Lesson = {
   teacherEmail: string;
   topic: string;
   level: Level;
-  durationMinutes: number;
+  /** Lesson length in seconds, from 10 seconds to 30 minutes. */
+  durationSeconds: number;
   priorKnowledge: string;
   objectives: string[];
   createdAt: string;
@@ -46,6 +47,7 @@ type LessonRow = {
   topic: string;
   level: Level;
   duration_minutes: number;
+  duration_seconds: number | null;
   prior_knowledge: string;
   objectives: string;
   created_at: string;
@@ -73,7 +75,7 @@ const toLesson = (r: LessonRow): Lesson => ({
   teacherEmail: r.teacher_email,
   topic: r.topic,
   level: r.level,
-  durationMinutes: r.duration_minutes,
+  durationSeconds: r.duration_seconds ?? r.duration_minutes * 60,
   priorKnowledge: r.prior_knowledge,
   objectives: JSON.parse(r.objectives) as string[],
   createdAt: r.created_at,
@@ -112,14 +114,15 @@ export function createLesson(teacherEmail: string, input: NewLesson): Lesson {
   const now = new Date().toISOString();
   const id = randomUUID();
   db.prepare(
-    `INSERT INTO lessons (id, teacher_email, topic, level, duration_minutes, prior_knowledge, objectives, created_at, updated_at)
-     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    `INSERT INTO lessons (id, teacher_email, topic, level, duration_minutes, duration_seconds, prior_knowledge, objectives, created_at, updated_at)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
   ).run(
     id,
     teacherEmail,
     input.topic,
     input.level,
-    input.durationMinutes,
+    Math.max(1, Math.round(input.durationSeconds / 60)), // older column, kept filled in
+    input.durationSeconds,
     input.priorKnowledge,
     JSON.stringify(input.objectives),
     now,
@@ -127,6 +130,78 @@ export function createLesson(teacherEmail: string, input: NewLesson): Lesson {
   );
   return { id, teacherEmail, ...input, createdAt: now, updatedAt: now };
 }
+
+/** Changes when anything the story is written from changes: topic, level, length, prior knowledge or objectives. */
+export function lessonDetailsKey(lesson: NewLesson): string {
+  const { topic, level, durationSeconds, priorKnowledge, objectives } = lesson;
+  return createHash("sha256")
+    .update(JSON.stringify([topic, level, durationSeconds, priorKnowledge, objectives]))
+    .digest("hex")
+    .slice(0, 16);
+}
+
+/**
+ * Where each old objective went after an edit, by position in the old list.
+ * An objective whose text is unchanged follows its text, even if it moved.
+ * A reworded one keeps its place. A deleted one (its place now holds another
+ * objective, or is past the end of the list) goes to the objective before it.
+ */
+export function objectiveMap(before: string[], after: string[]): number[] {
+  const norm = (s: string) => s.trim().toLowerCase();
+  const taken = new Set<number>();
+  const byText = before.map((o) => {
+    const j = after.findIndex((a, k) => !taken.has(k) && norm(a) === norm(o));
+    if (j >= 0) taken.add(j);
+    return j;
+  });
+  const map: number[] = [];
+  byText.forEach((j, i) => {
+    if (j >= 0) map.push(j);
+    else if (i < after.length && !taken.has(i)) map.push(i);
+    else map.push(i > 0 ? map[i - 1] : 0);
+  });
+  return map;
+}
+
+/**
+ * Saves the teacher's edits. Story video scenes keep pointing at the same
+ * objectives. Returns false if the lesson isn't this teacher's.
+ */
+export const updateLesson = db.transaction((teacherEmail: string, id: string, input: NewLesson): boolean => {
+  const current = getLesson(teacherEmail, id);
+  if (!current) return false;
+  // A story written before ClassForward tracked this was written for the details as they were.
+  db.prepare(`UPDATE lesson_videos SET story_for = ? WHERE lesson_id = ? AND story_for IS NULL AND title IS NOT NULL`).run(
+    lessonDetailsKey(current),
+    id,
+  );
+  db.prepare(
+    `UPDATE lessons SET topic = ?, level = ?, duration_minutes = ?, duration_seconds = ?, prior_knowledge = ?, objectives = ?, updated_at = ?
+     WHERE id = ? AND teacher_email = ?`,
+  ).run(
+    input.topic,
+    input.level,
+    Math.max(1, Math.round(input.durationSeconds / 60)),
+    input.durationSeconds,
+    input.priorKnowledge,
+    JSON.stringify(input.objectives),
+    new Date().toISOString(),
+    id,
+    teacherEmail,
+  );
+  const map = objectiveMap(current.objectives, input.objectives);
+  const scenes = db
+    .prepare(
+      `SELECT s.id, s.objective FROM video_scenes s JOIN lesson_videos v ON v.id = s.video_id WHERE v.lesson_id = ?`,
+    )
+    .all(id) as { id: string; objective: number }[];
+  const move = db.prepare(`UPDATE video_scenes SET objective = ? WHERE id = ?`);
+  for (const s of scenes) {
+    const to = map[s.objective] ?? input.objectives.length - 1;
+    if (to !== s.objective) move.run(to, s.id);
+  }
+  return true;
+});
 
 /** Only returns the lesson if it belongs to this teacher. */
 export function getLesson(teacherEmail: string, id: string): Lesson | null {

@@ -255,3 +255,5 @@ body {
     animation: none;
   }
 }
+
+@media print { .cf-notes-studio > :not(.cf-study-notes), .no-print, header, nav { display:none!important; } body { background:white!important;color:black!important; } article section { break-inside:avoid; } video { display:none!important; } }

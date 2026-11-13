@@ -5,19 +5,24 @@ import { redirect } from "next/navigation";
 import {
   createLesson,
   getLesson,
+  updateLesson,
   listSources,
   removeSource,
   saveSource,
   type Level,
+  type NewLesson,
   type SavedSource,
   type SourceInput,
 } from "@/lib/lessons";
 import { parsePublicUrl } from "@/lib/links";
 import { readLink, ScrapyError } from "@/lib/scrapy";
-import { DURATION_MAX, DURATION_MIN } from "@/lib/lesson-limits";
+import { DURATION_MAX, DURATION_MIN, formatDuration, isAllowedDuration } from "@/lib/lesson-limits";
 import { requireTeacher } from "@/lib/session";
+import { settleStaleJob } from "@/lib/video/jobs";
 
 export type LessonFormState = {
+  /** A problem with saving that isn't about one field. */
+  notice?: string;
   errors: Partial<Record<"topic" | "level" | "duration" | "priorKnowledge" | "objectives", string>>;
   values?: {
     topic: string;
@@ -30,9 +35,8 @@ export type LessonFormState = {
 
 const LEVELS: Level[] = ["high_school", "college"];
 
-export async function createLessonAction(_prev: LessonFormState, formData: FormData): Promise<LessonFormState> {
-  const teacher = await requireTeacher();
-
+/** Checks the lesson form. Shared by "Plan a lesson" and "Edit lesson". */
+function readLessonForm(formData: FormData): { state: LessonFormState; lesson?: NewLesson } {
   const topic = String(formData.get("topic") ?? "").trim();
   const level = String(formData.get("level") ?? "");
   const duration = String(formData.get("duration") ?? "").trim();
@@ -46,27 +50,57 @@ export async function createLessonAction(_prev: LessonFormState, formData: FormD
   if (topic.length < 2) errors.topic = "Enter the topic you're teaching.";
   else if (topic.length > 160) errors.topic = "Keep the topic under 160 characters.";
   if (!LEVELS.includes(level as Level)) errors.level = "Choose high school or college.";
-  const minutes = Number(duration);
-  if (!Number.isInteger(minutes) || minutes < DURATION_MIN || minutes > DURATION_MAX)
-    errors.duration = `Choose a length from ${DURATION_MIN} to ${DURATION_MAX} minutes.`;
+  const seconds = Number(duration);
+  if (!Number.isInteger(seconds) || !isAllowedDuration(seconds))
+    errors.duration = `Choose a length from ${formatDuration(DURATION_MIN)} to ${formatDuration(DURATION_MAX)}.`;
   if (priorKnowledge.length < 3) errors.priorKnowledge = "Describe what your students already know, even briefly.";
   if (objectives.length === 0) errors.objectives = "Add at least one learning objective.";
   else if (objectives.length > 8) errors.objectives = "Keep it to 8 objectives or fewer.";
 
-  if (Object.keys(errors).length > 0) {
-    return { errors, values: { topic, level, duration, priorKnowledge, objectives } };
-  }
+  const state = { errors, values: { topic, level, duration, priorKnowledge, objectives } };
+  if (Object.keys(errors).length > 0) return { state };
+  return {
+    state,
+    lesson: {
+      topic,
+      level: level as Level,
+      durationSeconds: seconds,
+      priorKnowledge: priorKnowledge.slice(0, 2000),
+      objectives: objectives.map((o) => o.slice(0, 300)),
+    },
+  };
+}
 
-  const lesson = createLesson(teacher.email, {
-    topic,
-    level: level as Level,
-    durationMinutes: minutes,
-    priorKnowledge: priorKnowledge.slice(0, 2000),
-    objectives: objectives.map((o) => o.slice(0, 300)),
-  });
+export async function createLessonAction(_prev: LessonFormState, formData: FormData): Promise<LessonFormState> {
+  const teacher = await requireTeacher();
+  const { state, lesson: input } = readLessonForm(formData);
+  if (!input) return state;
 
+  const lesson = createLesson(teacher.email, input);
   revalidatePath("/classroom");
   redirect(`/classroom/lessons/${lesson.id}?new=1`);
+}
+
+export async function updateLessonAction(
+  lessonId: string,
+  _prev: LessonFormState,
+  formData: FormData,
+): Promise<LessonFormState> {
+  const teacher = await requireTeacher();
+  if (!getLesson(teacher.email, lessonId)) throw new Error("Lesson not found.");
+  const { state, lesson: input } = readLessonForm(formData);
+  if (!input) return state;
+
+  // The story Claude is writing right now is based on the details as they were.
+  if (settleStaleJob(lessonId)?.status === "writing") {
+    return { ...state, notice: "ClassForward is writing this lesson's story video. Save your changes once it finishes." };
+  }
+
+  updateLesson(teacher.email, lessonId, input);
+  revalidatePath("/classroom");
+  revalidatePath(`/classroom/lessons/${lessonId}`);
+  revalidatePath(`/classroom/lessons/${lessonId}/video`);
+  redirect(`/classroom/lessons/${lessonId}?edited=1`);
 }
 
 async function ownLesson(lessonId: string) {

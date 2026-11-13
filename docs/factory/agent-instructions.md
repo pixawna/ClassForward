@@ -6,7 +6,7 @@ Implement only the accepted work order and its acceptance criteria. Read AGENTS.
 
 - Work on the branch assigned by SuperPlane. Follow the built-in implementation automation for committing, pushing, and opening the pull request.
 - Preserve the existing notebook visual design and port 8080.
-- Keep Google credentials, the OpenAlex API key, and session secrets on the server. Never copy .env.local or data/ into artifacts or Git.
+- Keep Google credentials, the Anthropic, ElevenLabs and OpenAlex API keys, and session secrets on the server. Never copy .env.local or data/ into artifacts or Git.
 - Check authentication and lesson ownership for every teacher-only read and write. Do not bypass authentication to make a demo work.
 - Build notes and quizzes from the same reviewed learning objectives and source material as the story. Preserve citations.
 - Treat team answers as evidence about the team response, not individual student mastery.

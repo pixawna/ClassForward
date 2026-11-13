@@ -64,6 +64,21 @@ Its tests run offline against a local fake site:
 scraper/.venv/bin/python -m unittest discover -s scraper/tests -v
 ```
 
+## Story videos
+
+From a lesson page, **Story video** opens the video studio:
+
+1. **Write the story.** Claude turns the lesson into a story with a problem, characters and an explanation, split into named chapters of narrated scenes. It uses the lesson's level, length, what students know, objectives and saved sources, and every scene teaches one of the objectives.
+2. **Review the script.** The teacher edits titles, chapters, narration and what's on screen, adds or deletes scenes, and saves.
+3. **Render.** Claude draws each scene in ClassForward's hand-drawn style, local Piper or ElevenLabs records the narration, and ffmpeg builds an MP4 with a caption track and chapter marks. Re-rendering after an edit only redraws or re-records the scenes that changed.
+4. **Watch.** The player has captions and a chapter list; the MP4 can be downloaded.
+
+Setup: add `ANTHROPIC_API_KEY` and `ELEVENLABS_API_KEY` to `.env.local` (see `.env.example` for the optional model, voice and ffmpeg settings). ffmpeg comes with `npm install`. Rendered videos are saved under `data/videos/` (gitignored).
+
+Writing and rendering run in the background on the server, so this needs a long-running Node server (`npm run dev` or `npm start`), not a serverless host. Each render costs Claude tokens for the drawings and, only when using ElevenLabs, characters for the narration. For offline speech without a voice API key, follow [the Piper setup](voice/README.md) and set `TTS_PROVIDER=piper`.
+
+Fonts used inside the drawings are in `assets/video-fonts/` (Schoolbell, Apache 2.0; Atkinson Hyperlegible, OFL).
+
 ## Checks
 
 ```sh

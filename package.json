@@ -11,9 +11,13 @@
     "test": "vitest run"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.8.0",
+    "@ffmpeg-installer/ffmpeg": "^1.1.0",
+    "@resvg/resvg-js": "^2.6.2",
     "better-auth": "^1.7.23",
     "better-sqlite3": "^12.11.1",
     "next": "latest",
+    "qrcode": "^1.5.4",
     "react": "latest",
     "react-dom": "latest",
     "server-only": "^0.0.1"
@@ -23,6 +27,7 @@
     "@testing-library/react": "^16.3.3",
     "@types/better-sqlite3": "^9.6.0",
     "@types/node": "latest",
+    "@types/qrcode": "^1.5.6",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "eslint": "latest",

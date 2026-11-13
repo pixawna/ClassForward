@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1600 900" width="1600" height="900">
+  <rect width="1600" height="900" fill="#F7F5EF"/>
+  <rect x="0" y="690" width="1600" height="210" fill="#C99E70" stroke="#1F2A44" stroke-width="5"/>
+  <g stroke="#1F2A44" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <rect x="760" y="110" width="620" height="440" rx="12" fill="#CFE8F7"/>
+    <line x1="1070" y1="110" x2="1070" y2="550"/>
+    <line x1="760" y1="330" x2="1380" y2="330"/>
+    <path d="M820 230 q30 -60 90 -40 q20 -50 80 -30 q60 -10 70 40 q50 10 40 50 q-10 30 -60 30 h-190 q-50 0 -30 -50z" fill="#EEEBE2"/>
+    <path d="M1160 200 q30 -50 80 -30 q50 -10 60 30 q40 10 30 40 h-170 q-30 -20 0 -40z" fill="#EEEBE2"/>
+  </g>
+  <g stroke="#9CCDEB" stroke-width="6" stroke-linecap="round">
+    <line x1="850" y1="300" x2="840" y2="330"/><line x1="900" y1="300" x2="890" y2="330"/>
+    <line x1="960" y1="300" x2="950" y2="330"/><line x1="1200" y1="270" x2="1190" y2="300"/>
+    <line x1="1250" y1="270" x2="1240" y2="300"/>
+  </g>
+  <ellipse cx="1050" cy="640" rx="190" ry="34" fill="#9CCDEB" stroke="#1F2A44" stroke-width="5"/>
+  <g stroke="#1F2A44" stroke-width="6" stroke-linecap="round" stroke-linejoin="round">
+    <path d="M420 690 L430 520 Q440 470 500 470 Q560 470 570 520 L580 690 Z" fill="#E25D4F"/>
+    <circle cx="500" cy="400" r="78" fill="#C68B5E"/>
+    <path d="M422 395 Q420 310 500 305 Q585 300 585 390 Q560 350 500 352 Q450 352 422 395 Z" fill="#2B2020"/>
+    <circle cx="610" cy="350" r="34" fill="#2B2020"/>
+    <path d="M560 540 L660 470" fill="none"/><circle cx="665" cy="466" r="16" fill="#C68B5E"/>
+  </g>
+  <circle cx="525" cy="400" r="7" fill="#1F2A44"/><circle cx="557" cy="400" r="7" fill="#1F2A44"/>
+  <path d="M520 440 q20 14 40 0" fill="none" stroke="#1F2A44" stroke-width="5" stroke-linecap="round"/>
+  <text x="1050" y="610" text-anchor="middle" font-family="Schoolbell" font-size="48" fill="#1F2A44">the puddle</text>
+  <text x="300" y="300" font-family="Schoolbell" font-size="56" fill="#D93A2B">Mia</text>
+</svg>
