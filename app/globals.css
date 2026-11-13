@@ -1,8 +1,219 @@
 @import "tailwindcss";
 
+@theme inline {
+  --color-paper: #f7f5ef;
+  --color-ink: #1f2a44;
+  --color-ink-soft: #4a5571;
+  --color-rule: #d6e0ea;
+  --color-redpen: #d93a2b;
+  --color-redpen-deep: #a8281b;
+  --color-board: #2f4f43;
+  --color-chalk: #eeebe2;
+
+  --font-serif: var(--font-literata), Georgia, serif;
+  --font-sans: var(--font-atkinson), system-ui, sans-serif;
+  --font-hand: var(--font-schoolbell), "Comic Sans MS", cursive;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
-  background: #ffffff;
-  color: #0f172a;
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-redpen);
+  outline-offset: 3px;
+}
+
+/* Exercise-book paper behind the hero: blue rules and a red margin line. */
+.cf-notebook {
+  --margin: clamp(28px, 7vw, 120px);
+  background-image:
+    linear-gradient(
+      to right,
+      transparent calc(var(--margin) - 1px),
+      rgb(217 58 43 / 0.28) calc(var(--margin) - 1px),
+      rgb(217 58 43 / 0.28) calc(var(--margin) + 1px),
+      transparent calc(var(--margin) + 1px)
+    ),
+    repeating-linear-gradient(to bottom, transparent 0 39px, var(--color-rule) 39px 40px);
+  background-position: 0 0, 0 18px;
+  mask-image: linear-gradient(to bottom, #000 55%, transparent 100%);
+}
+
+/* ---------- red-pen correction in the headline ---------- */
+
+.cf-struck {
+  position: relative;
+  display: inline-block;
+}
+
+.cf-strike {
+  position: absolute;
+  left: -6%;
+  top: 44%;
+  width: 112%;
+  height: 0.16em;
+  overflow: visible;
+}
+
+.cf-strike path {
+  stroke-dasharray: 1;
+  stroke-dashoffset: 1;
+  animation: cf-draw 0.5s 0.45s cubic-bezier(0.6, 0, 0.3, 1) forwards;
+}
+
+.cf-correction {
+  position: absolute;
+  left: 50%;
+  bottom: 70%;
+  translate: -50% 0;
+  rotate: -5deg;
+  font-family: var(--font-hand);
+  font-weight: 400;
+  font-size: 0.7em;
+  line-height: 1;
+  color: var(--color-redpen);
+  white-space: nowrap;
+  letter-spacing: 0;
+  clip-path: inset(-20% 100% -20% 0);
+  animation: cf-write 0.75s 0.95s steps(14, end) forwards;
+}
+
+@keyframes cf-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+@keyframes cf-write {
+  to {
+    clip-path: inset(-20% -10% -20% 0);
+  }
+}
+
+/* ---------- the classroom strip ---------- */
+
+.cf-scene {
+  height: clamp(290px, 26vw, 460px);
+  overflow: hidden;
+  touch-action: pan-y;
+}
+
+.cf-scene svg {
+  overflow: visible;
+}
+
+/* On phones, nudge the drawing right so the teacher stays in frame. */
+@media (max-width: 639px) {
+  .cf-scene svg {
+    translate: 9% 0;
+  }
+}
+
+/* The old classroom looks like a faded photocopy. */
+.cf-era-old {
+  filter: grayscale(1) sepia(0.28) contrast(0.92) brightness(1.02);
+}
+
+.cf-eraser {
+  filter: drop-shadow(0 3px 0 rgb(31 42 68 / 0.25));
+  transition: scale 0.15s ease;
+}
+
+.cf-eraser:hover {
+  scale: 1.06;
+}
+
+.cf-nudge-l,
+.cf-nudge-r {
+  animation: cf-nudge 1.4s ease-in-out infinite;
+}
+
+.cf-nudge-r {
+  animation-name: cf-nudge-r;
+}
+
+@keyframes cf-nudge {
+  50% {
+    translate: -4px 0;
+  }
+}
+
+@keyframes cf-nudge-r {
+  50% {
+    translate: 4px 0;
+  }
+}
+
+.cf-zzz {
+  animation: cf-float 3s ease-in-out infinite;
+}
+
+.cf-zzz-2 {
+  animation-delay: 0.4s;
+}
+
+.cf-zzz-3 {
+  animation-delay: 0.8s;
+}
+
+@keyframes cf-float {
+  0%,
+  100% {
+    opacity: 0.35;
+    translate: 0 4px;
+  }
+  50% {
+    opacity: 1;
+    translate: 0 -4px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .cf-strike path,
+  .cf-correction,
+  .cf-nudge-l,
+.cf-nudge-r {
+  animation: cf-nudge 1.4s ease-in-out infinite;
+}
+
+.cf-nudge-r {
+  animation-name: cf-nudge-r;
+}
+
+@keyframes cf-nudge {
+  50% {
+    translate: -4px 0;
+  }
+}
+
+@keyframes cf-nudge-r {
+  50% {
+    translate: 4px 0;
+  }
+}
+
+.cf-zzz {
+    animation: none;
+  }
+
+  .cf-strike path {
+    stroke-dashoffset: 0;
+  }
+
+  .cf-correction {
+    clip-path: none;
+  }
 }
