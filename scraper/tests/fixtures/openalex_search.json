@@ -1,0 +1,4 @@
+{"meta":{"count":2,"page":1,"per_page":6},"results":[
+{"id":"https://openalex.org/W1","doi":"https://doi.org/10.1000/photo.2020.1","display_name":"Improving photosynthesis efficiency in crops","publication_year":2020,"type":"review","authorships":[{"author":{"display_name":"Ana Ruiz"}},{"author":{"display_name":"Li Wei"}}],"primary_location":{"landing_page_url":"https://journal.example/photo1","source":{"display_name":"Journal of Plant Science"}},"open_access":{"is_oa":true,"oa_url":"https://journal.example/photo1.pdf"},"abstract_inverted_index":{"Photosynthesis":[0],"converts":[1],"light":[2],"into":[3],"chemical":[4],"energy.":[5]}},
+{"id":"https://openalex.org/W2","doi":null,"display_name":"Light reactions explained","publication_year":2018,"type":"article","authorships":[],"primary_location":{"landing_page_url":"https://journal.example/photo2","source":null},"open_access":{"is_oa":true,"oa_url":null},"abstract_inverted_index":null}
+]}

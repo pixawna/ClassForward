@@ -13,3 +13,14 @@ npm-debug.log*
 yarn-debug.log*
 yarn-error.log*
 .pnpm-debug.log*
+
+# local SQLite database
+/data/
+
+# Local software factory verification evidence
+.factory-runs/
+
+# Scrapy source finder: local Python environment and caches
+/scraper/.venv/
+__pycache__/
+*.pyc

@@ -1,0 +1,18 @@
+[
+  {
+    "title": "Create a reviewed story outline from a lesson topic",
+    "description": "Create an editable story outline from an authenticated teacher-owned lesson. Include a narrative hook, scenes, learning objectives per scene, and saved source citations. The teacher can edit and approve the outline before video rendering. Acceptance: another teacher cannot access it; failed generation can retry without duplicating scenes; missing provider configuration produces an actionable error; all scenes reference lesson objectives. Run node scripts/factory-verify.mjs and report actual results. Video rendering is outside this work order."
+  },
+  {
+    "title": "Generate shareable study notes from the reviewed lesson",
+    "description": "Generate notes from the approved lesson outline and supporting sources. Include definitions, worked examples where applicable, revision summary, and citations. Teachers can edit notes and explicitly enable or revoke a read-only sharing link. Acceptance: unshared notes remain private; the sharing page exposes no teacher credentials or quiz answer keys; content stays aligned with lesson objectives. Run node scripts/factory-verify.mjs and exercise ownership and sharing behavior."
+  },
+  {
+    "title": "Add a live team quiz for an approved lesson",
+    "description": "Create teacher-reviewable questions and answer keys aligned with an approved lesson. Teachers start a room; teams join by code and submit one answer per round. Teacher controls question progression and answer reveal. Acceptance: answer keys are never sent before reveal; only the owner can advance a room; duplicate submissions cannot earn extra points; results are labeled as team responses; reconnecting restores room state. Run node scripts/factory-verify.mjs and verify with two browser sessions."
+  },
+  {
+    "title": "Use Jev to select a follow-up for team explanations",
+    "description": "Evaluate team short-answer explanations against explicit concept rubrics using a server-side Jev integration. Preserve provider results and confidence; map them to advance, clarify, or revisit. The teacher chooses whether to launch the follow-up. Acceptance: uncertain or failed evaluations request review; correct multiple-choice scoring remains deterministic; credentials stay server-side; two distinct explanations demonstrate different follow-up recommendations. Run node scripts/factory-verify.mjs; separately disclose whether live provider calls were tested."
+  }
+]

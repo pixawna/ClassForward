@@ -7,23 +7,30 @@
     "build": "next build",
     "start": "next start --port 8080",
     "lint": "eslint .",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
   },
   "dependencies": {
     "better-auth": "^1.7.23",
+    "better-sqlite3": "^12.11.1",
     "next": "latest",
     "react": "latest",
-    "react-dom": "latest"
+    "react-dom": "latest",
+    "server-only": "^0.0.1"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "latest",
+    "@testing-library/react": "^16.3.3",
+    "@types/better-sqlite3": "^9.6.0",
     "@types/node": "latest",
     "@types/react": "latest",
     "@types/react-dom": "latest",
     "eslint": "latest",
     "eslint-config-next": "latest",
+    "jsdom": "^31.0.1",
     "postcss": "latest",
     "tailwindcss": "latest",
-    "typescript": "latest"
+    "typescript": "latest",
+    "vitest": "^5.1.0"
   }
 }
